@@ -1,15 +1,24 @@
 import kuromoji, { Tokenizer, IpadicFeatures } from "kuromoji";
 import path from "path";
 
-// ESM/CJS互換
+// 辞書パスを取得
+declare const __dirname: string;
+
 const getPackageDictPath = (packageName: string): string => {
   try {
     // CJS
+    if (typeof __dirname !== "undefined") {
+      const { createRequire } = require("module");
+      const localRequire = createRequire(path.join(__dirname, "index.js"));
+      const packagePath = localRequire.resolve(`${packageName}/package.json`);
+      return path.resolve(path.dirname(packagePath), "dict");
+    }
+  } catch {}
+  try {
     const packagePath = require.resolve(`${packageName}/package.json`);
     return path.resolve(path.dirname(packagePath), "dict");
-  } catch {
-    return path.resolve("node_modules", packageName, "dict");
-  }
+  } catch {}
+  return path.resolve("node_modules", packageName, "dict");
 };
 
 export interface GomamayoOptions {
