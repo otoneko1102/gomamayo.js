@@ -1,7 +1,7 @@
 {
   "name": "gomamayo",
   "version": "1.0.0",
-  "description": "MeCab不要のゴママヨ",
+  "description": "MeCab不要のゴママヨ検出ライブラリ",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -28,7 +28,11 @@
     "url": "git+https://github.com/otoneko1102/gomamayo.js.git"
   },
   "keywords": [
-    "template"
+    "gomamayo",
+    "kuromoji",
+    "jp",
+    "japan",
+    "japanese"
   ],
   "author": "otoneko.",
   "license": "MIT",

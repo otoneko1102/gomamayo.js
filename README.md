@@ -2,7 +2,11 @@
 
 MeCab不要のゴママヨ検出ライブラリ
 
+[kuromoji.js](https://www.npmjs.com/package/kuromoji) とそのdict、 [kuromoji-ipadic-neologd](https://www.npmjs.com/package/kuromoji-neologd) のdict を使用して検出精度を向上させています。
+
 ## Install
+
+以下の操作のみで使用できるはずです。
 
 ```bash
 npm install gomamayo
@@ -21,13 +25,13 @@ const { analyze } = require('gomamayo');
 // 1次ゴママヨの例
 const result1 = await analyze('ごまマヨネーズ');
 console.log(result1.isGomamayo); // true
-console.log(result1.degree);     // 1
+console.log(result1.degree); // 1
 console.log(result1.matches[0].words); // ['ごま', 'マヨネーズ']
 
-// 2次ゴママヨの例（固有名詞も検出可能）
+// 2次ゴママヨの例（固有名詞も一応検出可能）
 const result2 = await analyze('博麗霊夢');
 console.log(result2.isGomamayo); // true
-console.log(result2.degree);     // 2
+console.log(result2.degree); // 2
 console.log(result2.matches[0].readings); // ['ハクレイ', 'レイム']
 ```
 
@@ -68,3 +72,11 @@ npx gomamayo 太鼓公募募集終了 --multi false  # 多項検出なし
 ### `find(input, options?)`
 
 ゴママヨの場合は `GomamayoMatch[]` を、そうでなければ `null` を返します。
+
+## 参考
+
+- https://3qua9la-notebook.hatenablog.com/entry/2021/04/10/220317
+- https://github.com/Hayao0819/Awesome-Gomamayo
+- https://github.com/jugesuke/gomamayo
+- https://github.com/ThinaticSystem/gomamayo.js
+  - https://www.npmjs.com/package/gomamayo-js
