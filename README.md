@@ -26,8 +26,8 @@ import { analyze } from 'gomamayo';
 // CJS
 const { analyze } = require('gomamayo');
 
-// 1次ゴママヨの例
 (async () => {
+  // 1次ゴママヨの例
   const result1 = await analyze('ごまマヨネーズ');
   console.log(result1.isGomamayo); // true
   console.log(result1.degree); // 1
