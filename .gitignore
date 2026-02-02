@@ -1,6 +1,7 @@
 # Dependencies
 node_modules/
 lib/
+dict.zip
 
 # Private
 .idea/

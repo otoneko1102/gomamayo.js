@@ -3,6 +3,8 @@
 
 # Dependencies
 node_modules/
+lib/
+dict.zip
 
 # Private
 .idea/
@@ -11,6 +13,7 @@ node_modules/
 # Dev
 src/
 scripts/
+!scripts/postinstall.js
 test/
 
 # Config

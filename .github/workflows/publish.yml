@@ -19,13 +19,34 @@ jobs:
           node-version: "20.x"
           registry-url: "https://registry.npmjs.org"
 
-      - name: Install, Build, and Test
+      - name: Install dependencies (without postinstall)
         run: |
           npm ci --ignore-scripts
           cd node_modules/kuromoji-neologd
           npm install node-fetch adm-zip
           node postscript.js
           cd ../..
+
+      - name: Create and upload dict.zip to GitHub Releases
+        run: |
+          npm install adm-zip
+          node scripts/create-dict-zip.js
+          # Delete existing dict release if exists
+          gh release delete dict --yes || true
+          git push origin :refs/tags/dict || true
+          # Create new release with dict.zip
+          gh release create dict dict.zip --title "Dictionary files" --notes "Kuromoji dictionaries for gomamayo"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run postinstall (download from release)
+        run: |
+          npm install node-fetch adm-zip
+          rm -rf lib
+          node scripts/postinstall.js
+
+      - name: Build and Test
+        run: |
           npm run build
           npm test
 

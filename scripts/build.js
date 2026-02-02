@@ -1,34 +1,10 @@
 import consola from "consola";
 import esbuild from "esbuild";
 import fs from "fs/promises";
-import path from "path";
 import { createRequire } from "module";
 
 const require = createRequire(import.meta.url);
 const pkg = require("../package.json");
-
-// 辞書ファイルをlib/にコピーする関数
-async function copyDictionaries() {
-  const dictSources = [
-    { name: "kuromoji", src: "node_modules/kuromoji/dict", dest: "lib/kuromoji" },
-    { name: "kuromoji-neologd", src: "node_modules/kuromoji-neologd/dict", dest: "lib/kuromoji-neologd" },
-  ];
-
-  for (const { name, src, dest } of dictSources) {
-    try {
-      await fs.mkdir(dest, { recursive: true });
-      const files = await fs.readdir(src);
-      for (const file of files) {
-        const srcPath = path.join(src, file);
-        const destPath = path.join(dest, file);
-        await fs.copyFile(srcPath, destPath);
-      }
-      consola.success(`Copied ${name} dictionary to ${dest}`);
-    } catch (err) {
-      consola.error(`Failed to copy ${name} dictionary:`, err);
-    }
-  }
-}
 
 // This plugin provides the source code for the CJS build,
 // with the problematic ESM-only lines already removed.
@@ -95,7 +71,4 @@ esbuild
     },
   })
   .catch((err) => consola.error("Failed to build CLI:", err))
-
-// --- Copy dictionaries to lib/ ---
-copyDictionaries()
   .then(() => consola.success("CLI build successful!"));
