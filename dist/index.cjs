@@ -39,6 +39,14 @@ var import_kuromoji = __toESM(require("kuromoji"));
 var import_path = __toESM(require("path"));
 var import_fs = __toESM(require("fs"));
 var getPackageRoot = () => {
+  try {
+    if (false) {
+      const currentFile = fileURLToPath(import_meta.url);
+      const currentDir = import_path.default.dirname(currentFile);
+      return import_path.default.resolve(currentDir, "..");
+    }
+  } catch {
+  }
   if (typeof __dirname !== "undefined") {
     return import_path.default.resolve(__dirname, "..");
   }
