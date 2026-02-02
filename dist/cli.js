@@ -15,11 +15,20 @@ import kuromoji from "kuromoji";
 import path from "path";
 var getPackageDictPath = (packageName) => {
   try {
+    if (typeof __dirname !== "undefined") {
+      const { createRequire } = __require("module");
+      const localRequire = createRequire(path.join(__dirname, "index.js"));
+      const packagePath = localRequire.resolve(`${packageName}/package.json`);
+      return path.resolve(path.dirname(packagePath), "dict");
+    }
+  } catch {
+  }
+  try {
     const packagePath = __require.resolve(`${packageName}/package.json`);
     return path.resolve(path.dirname(packagePath), "dict");
   } catch {
-    return path.resolve("node_modules", packageName, "dict");
   }
+  return path.resolve("node_modules", packageName, "dict");
 };
 var VOWEL_MAP = {
   \u30A2: "\u30A2",

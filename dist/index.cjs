@@ -39,11 +39,20 @@ var import_kuromoji = __toESM(require("kuromoji"));
 var import_path = __toESM(require("path"));
 var getPackageDictPath = (packageName) => {
   try {
+    if (typeof __dirname !== "undefined") {
+      const { createRequire } = require("module");
+      const localRequire = createRequire(import_path.default.join(__dirname, "index.js"));
+      const packagePath = localRequire.resolve(`${packageName}/package.json`);
+      return import_path.default.resolve(import_path.default.dirname(packagePath), "dict");
+    }
+  } catch {
+  }
+  try {
     const packagePath = require.resolve(`${packageName}/package.json`);
     return import_path.default.resolve(import_path.default.dirname(packagePath), "dict");
   } catch {
-    return import_path.default.resolve("node_modules", packageName, "dict");
   }
+  return import_path.default.resolve("node_modules", packageName, "dict");
 };
 var VOWEL_MAP = {
   \u30A2: "\u30A2",
