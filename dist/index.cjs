@@ -39,6 +39,12 @@ var import_kuromoji = __toESM(require("kuromoji"));
 var import_path = __toESM(require("path"));
 var import_fs = __toESM(require("fs"));
 var getPackageDictPath = (packageName) => {
+  if (typeof __dirname !== "undefined") {
+    const libDictPath = import_path.default.resolve(__dirname, "..", "lib", packageName);
+    if (import_fs.default.existsSync(libDictPath)) {
+      return libDictPath;
+    }
+  }
   try {
     if (typeof __dirname !== "undefined") {
       const { createRequire } = require("module");
@@ -58,12 +64,6 @@ var getPackageDictPath = (packageName) => {
       return dictPath;
     }
   } catch {
-  }
-  if (typeof __dirname !== "undefined") {
-    const libDictPath = import_path.default.resolve(__dirname, "..", "lib", packageName);
-    if (import_fs.default.existsSync(libDictPath)) {
-      return libDictPath;
-    }
   }
   return import_path.default.resolve("node_modules", packageName, "dict");
 };

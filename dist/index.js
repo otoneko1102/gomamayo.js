@@ -10,6 +10,12 @@ import kuromoji from "kuromoji";
 import path from "path";
 import fs from "fs";
 var getPackageDictPath = (packageName) => {
+  if (typeof __dirname !== "undefined") {
+    const libDictPath = path.resolve(__dirname, "..", "lib", packageName);
+    if (fs.existsSync(libDictPath)) {
+      return libDictPath;
+    }
+  }
   try {
     if (typeof __dirname !== "undefined") {
       const { createRequire } = __require("module");
@@ -29,12 +35,6 @@ var getPackageDictPath = (packageName) => {
       return dictPath;
     }
   } catch {
-  }
-  if (typeof __dirname !== "undefined") {
-    const libDictPath = path.resolve(__dirname, "..", "lib", packageName);
-    if (fs.existsSync(libDictPath)) {
-      return libDictPath;
-    }
   }
   return path.resolve("node_modules", packageName, "dict");
 };

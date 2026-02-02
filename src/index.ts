@@ -6,6 +6,15 @@ import fs from "fs";
 declare const __dirname: string;
 
 const getPackageDictPath = (packageName: string): string => {
+  // 1. まずlib/フォルダを確認（グローバルインストール対応）
+  if (typeof __dirname !== "undefined") {
+    const libDictPath = path.resolve(__dirname, "..", "lib", packageName);
+    if (fs.existsSync(libDictPath)) {
+      return libDictPath;
+    }
+  }
+
+  // 2. require.resolveでパッケージを参照
   try {
     if (typeof __dirname !== "undefined") {
       const { createRequire } = require("module");
@@ -25,13 +34,7 @@ const getPackageDictPath = (packageName: string): string => {
     }
   } catch {}
 
-  if (typeof __dirname !== "undefined") {
-    const libDictPath = path.resolve(__dirname, "..", "lib", packageName);
-    if (fs.existsSync(libDictPath)) {
-      return libDictPath;
-    }
-  }
-
+  // 3. 最終フォールバック
   return path.resolve("node_modules", packageName, "dict");
 };
 
