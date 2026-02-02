@@ -86,3 +86,6 @@ npx gomamayo 太鼓公募募集終了 --multi false  # 多項検出なし
 - https://github.com/jugesuke/gomamayo
 - https://github.com/ThinaticSystem/gomamayo.js
   - https://www.npmjs.com/package/gomamayo-js
+
+> [!WARNING]
+> このパッケージは Apache License 2.0 の依存ライブラリ（[kuromoji.js](https://www.npmjs.com/package/kuromoji) および [kuromoji-ipadic-neologd](https://www.npmjs.com/package/kuromoji-neologd)）を使用しています。このパッケージ自体は MIT License ですが、これらの依存関係のライセンス条項も適用されます。
