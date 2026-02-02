@@ -1,29 +1,41 @@
 import kuromoji, { Tokenizer, IpadicFeatures } from "kuromoji";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
 
-// 辞書パスを取得
+// ESM/CJS両対応で現在のディレクトリを取得
+const getCurrentDir = (): string => {
+  // ESM環境
+  try {
+    if (typeof import.meta !== "undefined" && import.meta.url) {
+      return path.dirname(fileURLToPath(import.meta.url));
+    }
+  } catch {}
+  // CJS環境
+  if (typeof __dirname !== "undefined") {
+    return __dirname;
+  }
+  return process.cwd();
+};
+
 declare const __dirname: string;
+const currentDir = getCurrentDir();
 
 const getPackageDictPath = (packageName: string): string => {
   // 1. まずlib/フォルダを確認（グローバルインストール対応）
-  if (typeof __dirname !== "undefined") {
-    const libDictPath = path.resolve(__dirname, "..", "lib", packageName);
-    if (fs.existsSync(libDictPath)) {
-      return libDictPath;
-    }
+  const libDictPath = path.resolve(currentDir, "..", "lib", packageName);
+  if (fs.existsSync(libDictPath)) {
+    return libDictPath;
   }
 
   // 2. require.resolveでパッケージを参照
   try {
-    if (typeof __dirname !== "undefined") {
-      const { createRequire } = require("module");
-      const localRequire = createRequire(path.join(__dirname, "index.js"));
-      const packagePath = localRequire.resolve(`${packageName}/package.json`);
-      const dictPath = path.resolve(path.dirname(packagePath), "dict");
-      if (fs.existsSync(dictPath)) {
-        return dictPath;
-      }
+    const { createRequire } = require("module");
+    const localRequire = createRequire(path.join(currentDir, "index.js"));
+    const packagePath = localRequire.resolve(`${packageName}/package.json`);
+    const dictPath = path.resolve(path.dirname(packagePath), "dict");
+    if (fs.existsSync(dictPath)) {
+      return dictPath;
     }
   } catch {}
   try {
