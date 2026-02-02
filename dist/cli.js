@@ -14,24 +14,35 @@ import { hideBin } from "yargs/helpers";
 import kuromoji from "kuromoji";
 import path from "path";
 import fs from "fs";
-var getPackageDictPath = (packageName) => {
-  if (typeof __dirname !== "undefined") {
-    const libDictPath = path.resolve(__dirname, "..", "lib", packageName);
-    if (fs.existsSync(libDictPath)) {
-      return libDictPath;
-    }
-  }
+import { fileURLToPath } from "url";
+var getPackageRoot = () => {
   try {
-    if (typeof __dirname !== "undefined") {
-      const { createRequire } = __require("module");
-      const localRequire = createRequire(path.join(__dirname, "index.js"));
-      const packagePath = localRequire.resolve(`${packageName}/package.json`);
-      const dictPath = path.resolve(path.dirname(packagePath), "dict");
-      if (fs.existsSync(dictPath)) {
-        return dictPath;
-      }
+    if (true) {
+      const currentFile = fileURLToPath(import.meta.url);
+      const currentDir = path.dirname(currentFile);
+      return path.resolve(currentDir, "..");
     }
   } catch {
+  }
+  if (typeof __dirname !== "undefined") {
+    return path.resolve(__dirname, "..");
+  }
+  return process.cwd();
+};
+var packageRoot = getPackageRoot();
+var getPackageDictPath = (packageName) => {
+  const libDictPath = path.resolve(packageRoot, "lib", packageName);
+  if (fs.existsSync(libDictPath)) {
+    return libDictPath;
+  }
+  const nodeModulesDictPath = path.resolve(
+    packageRoot,
+    "node_modules",
+    packageName,
+    "dict"
+  );
+  if (fs.existsSync(nodeModulesDictPath)) {
+    return nodeModulesDictPath;
   }
   try {
     const packagePath = __require.resolve(`${packageName}/package.json`);

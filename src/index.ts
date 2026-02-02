@@ -3,41 +3,51 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
 
-// ESM/CJS両対応で現在のディレクトリを取得
-const getCurrentDir = (): string => {
-  // ESM環境
+// ビルド時にdefineで設定されるフラグ
+declare const __BUILD_FORMAT__: "esm" | "cjs";
+declare const __dirname: string;
+
+// パッケージのルートディレクトリを取得（グローバルインストール対応）
+const getPackageRoot = (): string => {
   try {
-    if (typeof import.meta !== "undefined" && import.meta.url) {
-      return path.dirname(fileURLToPath(import.meta.url));
+    // ESMビルドの場合: import.meta.urlからパスを取得
+    if (typeof __BUILD_FORMAT__ !== "undefined" && __BUILD_FORMAT__ === "esm") {
+      const currentFile = fileURLToPath(import.meta.url);
+      const currentDir = path.dirname(currentFile);
+      // dist/index.js から実行されるので、親ディレクトリがパッケージルート
+      return path.resolve(currentDir, "..");
     }
   } catch {}
-  // CJS環境
+
+  // CJSビルドまたはテスト環境: __dirnameを使用
   if (typeof __dirname !== "undefined") {
-    return __dirname;
+    return path.resolve(__dirname, "..");
   }
+
   return process.cwd();
 };
 
-declare const __dirname: string;
-const currentDir = getCurrentDir();
+const packageRoot = getPackageRoot();
 
 const getPackageDictPath = (packageName: string): string => {
   // 1. まずlib/フォルダを確認（グローバルインストール対応）
-  const libDictPath = path.resolve(currentDir, "..", "lib", packageName);
+  const libDictPath = path.resolve(packageRoot, "lib", packageName);
   if (fs.existsSync(libDictPath)) {
     return libDictPath;
   }
 
-  // 2. require.resolveでパッケージを参照
-  try {
-    const { createRequire } = require("module");
-    const localRequire = createRequire(path.join(currentDir, "index.js"));
-    const packagePath = localRequire.resolve(`${packageName}/package.json`);
-    const dictPath = path.resolve(path.dirname(packagePath), "dict");
-    if (fs.existsSync(dictPath)) {
-      return dictPath;
-    }
-  } catch {}
+  // 2. パッケージのnode_modulesから参照
+  const nodeModulesDictPath = path.resolve(
+    packageRoot,
+    "node_modules",
+    packageName,
+    "dict",
+  );
+  if (fs.existsSync(nodeModulesDictPath)) {
+    return nodeModulesDictPath;
+  }
+
+  // 3. require.resolveでパッケージを参照
   try {
     const packagePath = require.resolve(`${packageName}/package.json`);
     const dictPath = path.resolve(path.dirname(packagePath), "dict");
@@ -46,7 +56,7 @@ const getPackageDictPath = (packageName: string): string => {
     }
   } catch {}
 
-  // 3. 最終フォールバック
+  // 4. 最終フォールバック
   return path.resolve("node_modules", packageName, "dict");
 };
 

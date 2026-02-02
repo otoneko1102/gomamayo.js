@@ -18,9 +18,17 @@ const cjsSourcePlugin = {
 
     build.onLoad({ filter: /.*/, namespace: "cjs-source-ns" }, async () => {
       let contents = await fs.readFile("src/index.ts", "utf8");
-      const esmDirnameLogicRegex =
-        /const __filename = fileURLToPath\(import\.meta\.url\);(?:\r\n|\n|\r)\s*const __dirname = path\.dirname\(__filename\);/;
-      contents = contents.replace(esmDirnameLogicRegex, "");
+      
+      // fileURLToPath importを削除
+      contents = contents.replace(/import \{ fileURLToPath \} from "url";\n/, "");
+      
+      // ESMビルド用のimport.meta.url使用部分を削除
+      // try-catchブロック全体を削除して、CJSでは直接__dirnameフォールバックに行く
+      contents = contents.replace(
+        /try \{\s*\/\/ ESMビルドの場合: import\.meta\.urlからパスを取得[\s\S]*?\} catch \{\}/,
+        ""
+      );
+      
       return {
         contents,
         loader: "ts",
@@ -43,6 +51,9 @@ esbuild
     entryPoints: ["src/index.ts"],
     outfile: "dist/index.js",
     format: "esm",
+    define: {
+      __BUILD_FORMAT__: '"esm"',
+    },
   })
   .catch((err) => consola.error("Faled to build ESM:", err))
   .then(() => consola.success("ESM build successful!"));
@@ -55,6 +66,9 @@ esbuild
     outfile: "dist/index.cjs",
     format: "cjs",
     plugins: [cjsSourcePlugin], // Use the new, more robust plugin
+    define: {
+      __BUILD_FORMAT__: '"cjs"',
+    },
   })
   .catch((err) => consola.error("Faled to build CJS:", err))
   .then(() => consola.success("CJS build successful!"));
@@ -66,6 +80,9 @@ esbuild
     entryPoints: ["src/cli.ts"],
     outfile: "dist/cli.js",
     format: "esm",
+    define: {
+      __BUILD_FORMAT__: '"esm"',
+    },
     banner: {
       js: "#!/usr/bin/env node",
     },

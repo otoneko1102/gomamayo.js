@@ -1,4 +1,4 @@
-import { analyze, isGomamayo, find } from "../src/index";
+import { analyze, isGomamayo, find } from "../dist/index.cjs";
 
 describe("analyze", () => {
   test("ごまマヨネーズ is 1項1次", async () => {
