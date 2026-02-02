@@ -1,4 +1,16 @@
 import kuromoji, { Tokenizer, IpadicFeatures } from "kuromoji";
+import path from "path";
+
+// ESM/CJS互換
+const getPackageDictPath = (packageName: string): string => {
+  try {
+    // CJS
+    const packagePath = require.resolve(`${packageName}/package.json`);
+    return path.resolve(path.dirname(packagePath), "dict");
+  } catch {
+    return path.resolve("node_modules", packageName, "dict");
+  }
+};
 
 export interface GomamayoOptions {
   higher?: boolean;
@@ -163,12 +175,11 @@ let neologdTokenizer: Promise<Tokenizer<IpadicFeatures>> | null = null;
 function getIpadicTokenizer(): Promise<Tokenizer<IpadicFeatures>> {
   if (!ipadicTokenizer) {
     ipadicTokenizer = new Promise((resolve, reject) => {
-      kuromoji
-        .builder({ dicPath: "node_modules/kuromoji/dict" })
-        .build((err, tokenizer) => {
-          if (err) reject(err);
-          else resolve(tokenizer);
-        });
+      const dicPath = getPackageDictPath("kuromoji");
+      kuromoji.builder({ dicPath }).build((err, tokenizer) => {
+        if (err) reject(err);
+        else resolve(tokenizer);
+      });
     });
   }
   return ipadicTokenizer;
@@ -177,12 +188,11 @@ function getIpadicTokenizer(): Promise<Tokenizer<IpadicFeatures>> {
 function getNeologdTokenizer(): Promise<Tokenizer<IpadicFeatures>> {
   if (!neologdTokenizer) {
     neologdTokenizer = new Promise((resolve, reject) => {
-      kuromoji
-        .builder({ dicPath: "node_modules/kuromoji-neologd/dict" })
-        .build((err, tokenizer) => {
-          if (err) reject(err);
-          else resolve(tokenizer);
-        });
+      const dicPath = getPackageDictPath("kuromoji-neologd");
+      kuromoji.builder({ dicPath }).build((err, tokenizer) => {
+        if (err) reject(err);
+        else resolve(tokenizer);
+      });
     });
   }
   return neologdTokenizer;
