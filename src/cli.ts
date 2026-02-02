@@ -36,6 +36,7 @@ const argv = yargs(hideBin(process.argv))
   .help()
   .alias("help", "?")
   .version()
+  .alias("version", "v")
   .parseSync() as unknown as Arguments;
 
 (async function () {
