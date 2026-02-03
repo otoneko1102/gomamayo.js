@@ -7,9 +7,7 @@ MeCab不要のゴママヨ検出ライブラリ
 
 > [!NOTE]
 > 使用している辞書のサイズが非常に大きく、導入のためのスクリプトが特殊なため、開発者の環境ではインストールに3分ほど要しました。  
-> [実際に開発者の環境にインストールしてみた動画(3分程度)](https://youtu.be/jKc3m-9EHko)
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/jKc3m-9EHko?si=H_eUxPY1368VX-vu" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+> [自作のゴママヨ判定のインストールに3分も掛かるという動画(YouTube)](https://youtu.be/jKc3m-9EHko)
 
 ## Install
 
