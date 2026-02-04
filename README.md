@@ -5,9 +5,14 @@ MeCab不要のゴママヨ検出ライブラリ
 [kuromoji.js](https://www.npmjs.com/package/kuromoji) とそのdict、 [kuromoji-ipadic-neologd](https://www.npmjs.com/package/kuromoji-neologd) のdict を使用して精度を向上させています。  
 固有名詞のゴママヨも一応検出可能です。
 
+> [!WARNING]
+> 使用している辞書のサイズが非常に大きく、判定時の `kuromoji.builder({ dicPath }).build((err, tokenizer) => { ... });` でかなり膨大なメモリを消費します(Linux環境での検証時は4GB程度)  
+> メモリに余裕がない環境で使用する際は、判定の制度は下がりますが `useNeologd` を `false` に設定することをおすすめします。
+
 > [!NOTE]
-> 使用している辞書のサイズが非常に大きく、導入のためのスクリプトが特殊なため、開発者の環境ではインストールに3分ほど要しました。  
-> [自作のゴママヨ判定のインストールに3分も掛かるという動画(YouTube)](https://youtu.be/jKc3m-9EHko)
+> ~~使用している辞書のサイズが非常に大きく、導入のためのスクリプトが特殊なため、開発者の環境ではインストールに3分ほど要しました。~~  
+> ~~[自作のゴママヨ判定のインストールに3分も掛かるという動画(YouTube)](https://youtu.be/jKc3m-9EHko)~~
+> スクリプトなどを改善し、現在は開発者の環境では1分未満でインストールが可能になりました。 (v1.1.3 より)
 
 ## Install
 
