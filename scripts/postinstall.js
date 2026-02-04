@@ -1,8 +1,8 @@
-import fetch from "node-fetch";
-import AdmZip from "adm-zip";
 import fs from "fs";
 import path from "path";
 import url from "node:url";
+import { Readable } from "stream";
+import unzip from "unzip-stream";
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
@@ -10,27 +10,29 @@ const rootDir = path.resolve(__dirname, "..");
 const DICT_URL =
   "https://github.com/otoneko1102/gomamayo.js/releases/download/dict/dict.zip";
 const outputPath = path.resolve(rootDir, "lib");
-const zipPath = path.resolve(rootDir, "dict.zip");
+const fetchFn = globalThis.fetch?.bind(globalThis);
 
-async function downloadFile(fileUrl, dest) {
-  const res = await fetch(fileUrl, { redirect: "follow" });
+async function downloadAndExtract(fileUrl, outputDir) {
+  if (!fetchFn) {
+    throw new Error(
+      "Fetch API is not available. Please use Node.js 18+ or install a fetch polyfill.",
+    );
+  }
+  const res = await fetchFn(fileUrl, { redirect: "follow" });
   if (!res.ok) throw new Error(`Failed to fetch ${fileUrl}: ${res.statusText}`);
-  const fileStream = fs.createWriteStream(dest);
-  await new Promise((resolve, reject) => {
-    res.body.pipe(fileStream);
-    res.body.on("error", reject);
-    fileStream.on("finish", resolve);
-  });
-}
+  if (!res.body) throw new Error("Response body is empty.");
+  const source =
+    typeof res.body.pipe === "function"
+      ? res.body
+      : Readable.fromWeb(res.body);
 
-function unzipFile(zipFilePath, outputDir) {
-  const zip = new AdmZip(zipFilePath);
-  const zipEntries = zip.getEntries();
-  console.log(`[postinstall] ZIP contains ${zipEntries.length} entries:`);
-  zipEntries.forEach((entry) => {
-    console.log(`  - ${entry.entryName}`);
+  await new Promise((resolve, reject) => {
+    const extractor = unzip.Extract({ path: outputDir });
+    extractor.on("close", resolve);
+    extractor.on("error", reject);
+    source.on("error", reject);
+    source.pipe(extractor);
   });
-  zip.extractAllTo(outputDir, true);
 }
 
 (async () => {
@@ -51,12 +53,8 @@ function unzipFile(zipFilePath, outputDir) {
     }
 
     console.log(`[postinstall] Downloading dictionaries from ${DICT_URL}...`);
-    await downloadFile(DICT_URL, zipPath);
-    console.log(`[postinstall] Downloaded to ${zipPath}`);
-
-    console.log(`[postinstall] Extracting ZIP to ${outputPath}...`);
     fs.mkdirSync(outputPath, { recursive: true });
-    unzipFile(zipPath, outputPath);
+    await downloadAndExtract(DICT_URL, outputPath);
     console.log(`[postinstall] Extracted to ${outputPath}`);
 
     // 展開後の確認
@@ -74,9 +72,6 @@ function unzipFile(zipFilePath, outputDir) {
     } else {
       console.log(`[postinstall] ✗ kuromoji-neologd not found`);
     }
-
-    fs.unlinkSync(zipPath);
-    console.log(`[postinstall] Temporary ZIP file deleted.`);
   } catch (error) {
     console.error(`[postinstall] Error: ${error.message}`);
     console.error(
