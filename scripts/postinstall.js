@@ -1,8 +1,8 @@
+
 import fs from "fs";
 import path from "path";
 import url from "node:url";
 import { Readable } from "stream";
-import { pipeline } from "stream/promises";
 import unzip from "unzip-stream";
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
@@ -27,8 +27,6 @@ async function downloadAndExtract(fileUrl, outputDir) {
       ? res.body
       : Readable.fromWeb(res.body);
 
-  const extractor = unzip.Extract({ path: outputDir });
-  await pipeline(source, extractor);
   await new Promise((resolve, reject) => {
     const extractor = unzip.Extract({ path: outputDir });
     extractor.on("close", resolve);
