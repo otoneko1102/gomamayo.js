@@ -117,6 +117,14 @@ npx gomamayo ごまマヨネーズ --neologd false  # neologd辞書なし（省�
 
 - `type`: `'ipadic'` | `'neologd'` | `'all'` (デフォルト: `'all'`)
 
+## 貢献
+
+コントリビューションを歓迎します！詳細は[コントリビューションガイドライン](./CONTRIBUTING.md)をご覧ください。
+
+## 貢献者
+
+[![Contributors](https://contrib.rocks/image?repo=otoneko1102/gomamayo.js)](https://github.com/otoneko1102/gomamayo.js/graphs/contributors)
+
 ## 参考
 
 - https://3qua9la-notebook.hatenablog.com/entry/2021/04/10/220317
