@@ -1,6 +1,6 @@
 {
   "name": "gomamayo",
-  "version": "1.1.3-dev.0",
+  "version": "1.1.3-dev.1",
   "description": "MeCab不要のゴママヨ検出ライブラリ",
   "type": "module",
   "main": "dist/index.cjs",
@@ -14,7 +14,7 @@
     "gomamayo": "./dist/cli.js"
   },
   "scripts": {
-    "postinstall": "npm i node-fetch & npm i adm-zip & node scripts/postinstall.js",
+    "postinstall": "npm i -D node-fetch adm-zip && node scripts/postinstall.js",
     "setup": "npm install && node scripts/setup.js",
     "test": "jest",
     "clean": "rimraf dist lib",
