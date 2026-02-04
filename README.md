@@ -50,7 +50,32 @@ await analyze('博麗霊夢', { higher: false });
 
 // 多項ゴママヨを検出しない（最初の1項のみ）
 await analyze('太鼓公募募集終了', { multi: false });
+
+// neologd辞書を使用しない（メモリ節約、ただし固有名詞の検出精度が低下）
+await analyze('博麗霊夢', { useNeologd: false });
 ```
+
+### メモリ管理
+
+辞書は一度ロードするとキャッシュされ、以降の呼び出しでは再利用されます。
+使用後にメモリを解放したい場合は `clearTokenizerCache` を使用してください。
+
+```javascript
+import { analyze, clearTokenizerCache } from 'gomamayo';
+
+// 解析を実行
+const result = await analyze('ごまマヨネーズ');
+
+// 辞書キャッシュをクリアしてメモリを解放
+clearTokenizerCache(); // 全ての辞書を解放
+clearTokenizerCache('neologd'); // neologd辞書のみ解放
+clearTokenizerCache('ipadic'); // ipadic辞書のみ解放
+```
+
+> [!TIP]
+> メモリ使用量を抑えたい場合：
+> - `useNeologd: false` を指定すると、neologd辞書をロードせずに解析できます（約50%のメモリ削減）
+> - 解析後に `clearTokenizerCache()` を呼び出すと、辞書をメモリから解放できます
 
 ## CLI
 
@@ -64,6 +89,7 @@ npx gomamayo 博麗霊夢
 # オプション
 npx gomamayo 博麗霊夢 --higher false  # 高次検出なし
 npx gomamayo 太鼓公募募集終了 --multi false  # 多項検出なし
+npx gomamayo ごまマヨネーズ --neologd false  # neologd辞書なし（省メモリ）
 ```
 
 ## API
@@ -79,6 +105,12 @@ npx gomamayo 太鼓公募募集終了 --multi false  # 多項検出なし
 ### `find(input, options?)`
 
 ゴママヨの場合は `GomamayoMatch[]` を、そうでなければ `null` を返します。
+
+### `clearTokenizerCache(type?)`
+
+トークナイザーのキャッシュをクリアしてメモリを解放します。
+
+- `type`: `'ipadic'` | `'neologd'` | `'all'` (デフォルト: `'all'`)
 
 ## 参考
 

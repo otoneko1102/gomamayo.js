@@ -6,6 +6,7 @@ interface Arguments {
   text: string;
   higher: boolean;
   multi: boolean;
+  neologd: boolean;
 }
 
 const argv = yargs(hideBin(process.argv))
@@ -29,10 +30,17 @@ const argv = yargs(hideBin(process.argv))
     type: "boolean",
     default: true,
   })
+  .option("neologd", {
+    alias: "n",
+    describe: "neologd辞書を使用するか (メモリ節約のためfalseにできる)",
+    type: "boolean",
+    default: true,
+  })
   .example("$0 ごまマヨネーズ", "基本的な使用方法")
   .example("$0 オレンジレンジ --higher true", "高次ゴママヨ検出あり")
   .example("$0 太鼓公募募集終了 --multi true", "多項ゴママヨ検出あり")
   .example("$0 ごまマヨネーズ --higher false", "高次ゴママヨ検出なし")
+  .example("$0 ごまマヨネーズ --neologd false", "neologd辞書なし(省メモリ)")
   .help()
   .alias("help", "?")
   .version()
@@ -44,10 +52,13 @@ const argv = yargs(hideBin(process.argv))
   const options: GomamayoOptions = {
     higher: argv.higher,
     multi: argv.multi,
+    useNeologd: argv.neologd,
   };
 
   console.log(`入力文字列: ${inputText}`);
-  console.log(`オプション: higher=${options.higher}, multi=${options.multi}`);
+  console.log(
+    `オプション: higher=${options.higher}, multi=${options.multi}, useNeologd=${options.useNeologd}`,
+  );
   console.log("");
 
   try {

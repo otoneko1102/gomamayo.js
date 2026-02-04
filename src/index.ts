@@ -54,6 +54,8 @@ const getPackageDictPath = (packageName: string): string => {
 export interface GomamayoOptions {
   higher?: boolean;
   multi?: boolean;
+  /** neologd辞書を使用するか (デフォルト: true) */
+  useNeologd?: boolean;
 }
 
 export interface GomamayoMatch {
@@ -237,6 +239,25 @@ function getNeologdTokenizer(): Promise<Tokenizer<IpadicFeatures>> {
   return neologdTokenizer;
 }
 
+/**
+ * トークナイザーのキャッシュをクリアしてメモリを解放する
+ * @param type 'ipadic' | 'neologd' | 'all' (デフォルト: 'all')
+ */
+export function clearTokenizerCache(
+  type: "ipadic" | "neologd" | "all" = "all",
+): void {
+  if (type === "ipadic" || type === "all") {
+    ipadicTokenizer = null;
+  }
+  if (type === "neologd" || type === "all") {
+    neologdTokenizer = null;
+  }
+  // ガベージコレクションを促すヒント
+  if (global.gc) {
+    global.gc();
+  }
+}
+
 function findMaxDegree(formerMora: string[], laterMora: string[]): number {
   const maxCheck = Math.min(formerMora.length, laterMora.length);
   let maxDegree = 0;
@@ -294,11 +315,11 @@ interface TokenInfo {
 
 function buildTokenInfos(
   ipadicTokens: IpadicFeatures[],
-  neologdTokens: IpadicFeatures[],
+  neologdTokens: IpadicFeatures[] | null,
 ): TokenInfo[] {
   const result: TokenInfo[] = [];
 
-  if (neologdTokens.length === 1 && ipadicTokens.length > 1) {
+  if (neologdTokens && neologdTokens.length === 1 && ipadicTokens.length > 1) {
     const neo = neologdTokens[0];
     if (neo && neo.reading) {
       const neoReading = hiraToKata(neo.reading);
@@ -333,16 +354,14 @@ export async function analyze(
   input: string,
   options: GomamayoOptions = {},
 ): Promise<GomamayoResult> {
-  const { higher = true, multi = true } = options;
+  const { higher = true, multi = true, useNeologd = true } = options;
 
-  const [ipadic, neologd] = await Promise.all([
-    getIpadicTokenizer(),
-    getNeologdTokenizer(),
-  ]);
+  const ipadic = await getIpadicTokenizer();
+  const neologd = useNeologd ? await getNeologdTokenizer() : null;
 
   const normalized = normalize(input);
   const ipadicTokens = ipadic.tokenize(normalized);
-  const neologdTokens = neologd.tokenize(normalized);
+  const neologdTokens = neologd ? neologd.tokenize(normalized) : null;
 
   const result: GomamayoResult = {
     isGomamayo: false,
@@ -386,6 +405,7 @@ export async function analyze(
 
   if (
     result.ary === 0 &&
+    neologdTokens &&
     neologdTokens.length === 1 &&
     ipadicTokens.length > 1
   ) {
@@ -432,4 +452,4 @@ export async function find(
   return result.isGomamayo ? result.matches : null;
 }
 
-export default { analyze, isGomamayo, find };
+export default { analyze, isGomamayo, find, clearTokenizerCache };
